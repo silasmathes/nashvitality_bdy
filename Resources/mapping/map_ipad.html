@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+        <title>Active Nashville Map Trails</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <!--<link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.css" />-->
+	<script src="leaflet/jquery-1.8.0.min.js"></script>
+	<!--<script src="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.js"></script>-->
+	<link rel="stylesheet" href="leaflet/leaflet.css" />
+	<!--[if lte IE 8]><link rel="stylesheet" href="http://leaflet.cloudmade.com/dist/leaflet.ie.css" /><![endif]-->
+
+	<script src="leaflet/leaflet.js"></script>
+	<!--warner_pois_zoom_out-->
+	
+	<!--warner_pois_all
+	<script src="warner_pois_all_dd.geojson.js" type="text/javascript"></script>-->
+
+
+	<style>
+		body {
+			padding: 0;
+			margin: 0;
+		}
+		html, body, #map {
+			height: 100%;
+		}
+
+.popupImage {
+	padding: 3px;
+	vertical-align:text-top;
+}
+
+
+
+@-webkit-keyframes pulsate1 
+{  
+    0% {opacity: .1; }
+    50% {opacity: 1; }
+     100% {opacity: .5; }
+}
+
+
+
+.locationCircle {
+ 
+  -webkit-border-radius: 50%;
+ 
+  background-image: -webkit-radial-gradient(45px 45px, circle cover, blue, white);
+  
+  
+  
+  /* webkit chrome, safari, mobile */
+  -webkit-animation-name: pulsate1; 
+  -webkit-animation-duration: 2s; /* 3 seconds */
+  -webkit-animation-iteration-count: infinite; 
+  -webkit-animation-timing-function: linear;
+}
+
+
+
+
+
+
+
+
+.locatorButton {
+border-radius:7px;
+height:35px;
+width:35px;
+background-color: rgba(0, 0, 0, 0.5);
+background-position: 50% 50%;
+	background-repeat: no-repeat;
+	display: block;
+background-image: url('leaflet/images/locatorButton.png');
+opacity: 0.65;
+	}
+
+
+
+		
+	</style>
+</head>
+
+<body onload="onLoad();">
+ 
+	
+		<div id="map"></div>
+	
+	<!--<div class="locationCircle"></div>-->
+	 
+	
+	<script>
+		
+
+		//create a custom div to hold clickable popup informattion
+		//var t = $("<div id='myPopupDiv'>testing</div>");		
+		//put it in the dom
+		//$.append(t);
+
+		
+		
+        
+		var map, myLocation, initialBounds, Locations, Locations2, scaleControl, MyControl, myLayerControl;
+		var marker = null;
+		var marker2 = null;
+        var circle = null;
+        var locatorWatch = false;
+        var myCurrentLocation; 
+        var  theFeature;  
+       		var geojsonLayer;
+       		var metroTrails, metroBikesSidewalks;
+		var _layerdata, _mylatlng, _distanceMiles, theSettings;
+		var metersToMiles = 1609.34;
+		var _filterData = [];
+		var baseMapAvailable;
+
+		/*var configurationInfo = [	
+		{title:'Explore Near Me', settings: {dataURL:'Data/trailheads.geojson', filterField: 'category', filterText: '', mapIconField: 'mapicon_w',mapTitleField:'maptitle', mapCategoryField:'mapcategory', tableIDField: 'tableid', mapIconPath: 'icons/mappins/', polyLineColor: '#ff7800', pointColor: '#ff7800', startLocator: true, mainLayer: 'trails'}},	
+		{title:'Paved Trails', settings: {dataURL:'Data/trailheads.geojson', filterField: 'surface', filterText: 'Paved', mapIconField: 'mapicon',mapTitleField:'maptitle', mapCategoryField:'mapcategory', tableIDField: 'tableid', mapIconPath: 'icons/mappins/', polyLineColor: '#ff7800', pointColor: '#ff7800', mainLayer: 'trails'}},	
+		{title:'Metro Greenways', settings: {dataURL:'Data/trailheads.geojson', filterField: 'category', filterText: 'Greenway', mapIconField: 'mapicon',mapTitleField:'maptitle', mapCategoryField:'mapcategory', tableIDField: 'tableid', mapIconPath: 'icons/mappins/', polyLineColor: '#ff7800', pointColor: '#ff7800', mainLayer: 'trails'}},	
+		{title:'Unpaved Trails', settings: {dataURL:'Data/trailheads.geojson', filterField: 'surface', filterText: 'Unpaved', mapIconField: 'mapicon',mapTitleField:'maptitle', mapCategoryField:'mapcategory', tableIDField: 'tableid', mapIconPath: 'icons/mappins/', polyLineColor: '#ff7800', pointColor: '#ff7800', mainLayer: 'trails'}},	
+		//{title:'Sidewalks', settings: {dataURL:'Data/trailheads.geojson', filterField: 'category', filterText: '', mapIconField: 'mapicon_w',mapTitleField:'descriptor', mapCategoryField:'full_name', tableIDField: 'trail_id', mapIconPath: 'icons/mappins/', polyLineColor: '#ff7800', pointColor: '#ff7800', startLocator: true, mainLayer: 'sidewalksbikes'}},	
+		];		
+      */
+      	
+      	
+	   
+	   map = new L.Map('map', {center: [36.166688,-86.778229], zoom: 11, attributionControl: false});
+	   $('#map').hide();
+	
+			var localTilesUrl = 'NashvitalityBase8/{z}/{x}/{y}.png';
+				var metroTiles = new L.TileLayer(localTilesUrl, { 
+						minZoom: 7, 
+						maxZoom: 15, 
+						//attribution: localAttribution, 
+						tms: true, opacity: 1
+						//detectRetina: true
+					});	
+					
+			
+			
+		        var metro = new L.TileLayer("http://maps.nashville.gov/MetGIS/rest/services/Basemaps/NashvilleBasemapMuted_MSD_WGS84/MapServer/tile/{z}/{y}/{x}.png", {
+		        	//maxZoom: 17,
+		        	transparent: true,
+		        	detectRetina:true
+		        });
+		        
+		        
+		        metroTrails = new L.TileLayer("http://maps.nashville.gov/MetGIS/rest/services/Parks/Trails/MapServer/tile/{z}/{y}/{x}.png", {
+		        	//maxZoom: 17,
+		        	opacity: .8,
+		        	transparent: true,
+		        	detectRetina:true
+		        });
+		        
+		        metroBikesSidewalks = new L.TileLayer("http://maps.nashville.gov/MetGIS/rest/services/Parks/Bikes_Sidewalks/MapServer/tile/{z}/{y}/{x}.png", {
+		        	//maxZoom: 17,
+		        	opacity: .4,
+		        	transparent: true,
+		        	detectRetina:true
+		        });
+		        
+		        var mapquest = new L.TileLayer("http://{s}.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.png", {
+        			//maxZoom: 18,
+        			subdomains: ["oatile1", "oatile2", "oatile3", "oatile4"],
+        			detectRetina: true
+        			//,attribution: 'Tiles Courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a>. Map data (c) <a href="http://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> contributors, CC-BY-SA.'
+      			});
+		
+				var mapquest2 = new L.TileLayer("http://{s}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png", {
+        			//maxZoom: 18,
+        			subdomains: ["otile1", "otile2", "otile3", "otile4"],
+        			detectRetina: true
+        			//,attribution: 'Tiles Courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a>. Map data (c) <a href="http://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> contributors, CC-BY-SA.'
+      			});
+		
+		
+				var nexrad = new L.TileLayer.WMS("http://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi", {
+						   layers: 'nexrad-n0r-900913',
+						   format: 'image/png',
+						   transparent: true,
+						   attribution: "Weather data © 2012 IEM Nexrad"
+						});
+		
+								var baseMaps = {
+					//"Warner Parks Map": warnertopo
+					"Aerial Imagery": mapquest,
+					 "OpenStreetMap" : mapquest2,
+					 "Nashville Parks": metro,
+					 "Offline Map": metroTiles
+					 
+				};
+				
+				var overlayMaps = {
+					"Trails": metroTrails, 
+					 "Bikes and Sidewalks" :metroBikesSidewalks
+					
+				};
+				
+				        
+           
+                
+				
+				//map.addLayer(metro);
+			   				
+                L.Control.Attribution({prefix:false});                 
+				
+				initialBounds = map.getBounds();
+				
+				Locations2 = L.geoJson().addTo(map);
+							
+				var scaleControl = new L.Control.Scale();
+				
+				map.addControl(scaleControl);	
+			   		
+				//Add a locator button control
+				MyControl = L.Control.extend({
+					options: {
+						position: 'topleft'
+					},
+				
+					onAdd: function (map) {
+						// create the control container with a particular class name
+						var container = L.DomUtil.create('div', 'locatorButton');
+				
+						// ... initialize other DOM elements, add listeners, etc.
+				
+						return container;
+					}
+				});
+				
+				map.addControl(new MyControl());
+				
+				$('.locatorButton').click(function() {
+        			//alert("clicked!");
+        			if (locatorWatch){
+                        //if already watching location, turn off services in Titanium and remove locator marker from map
+                        
+
+        				$('.locatorButton').css({backgroundColor: 'rgba(0,0,0,0.3)'});
+        				if (marker!=null) {
+				   				//map.removeLayer(marker);
+				   				
+				   				
+				   				map.removeLayer(marker._leaflet_id);
+		           				 map.removeLayer(circle);
+		            			$('.locationCircle').hide();
+				   				marker=null;
+				   				//marker2=null;
+				   				circle=null;
+						}
+						Ti.App.fireEvent("location.stop", {});
+						locatorWatch = false; //no longer locating	
+						//Locations.redraw();	   
+        			}	
+        			else {  //if not locating, turn on services, and add marker to map
+
+        			    Ti.App.fireEvent("location.start", {});
+        			    //map.setZoom(14);
+        			    $('.locatorButton').css({backgroundColor: 'rgba(0,0,255,0.6)'});
+        			    locatorWatch = true;
+        				
+        			}
+        			
+        			
+
+        			
+    			});
+
+           
+
+                if (window.navigator.onLine == true){
+					//myLayerControl.addBaseLayer(mapquest, "MapQuest Open Aerial Imagery");
+					//myLayerControl.addBaseLayer(mapquest2, "MapQuest OSM Streets");
+					//myLayerControl.addBaseLayer(metro, "Nashville Parks");
+					//myLayerControl.addOverlay(metroTrails, "Nashville Trails");
+					//myLayerControl.addOverlay(metroBikesSidewalks, "Nashville Bikes and Sidewalks");
+					//myLayerControl.addOverlay(Locations, "Points of Interest");
+				 }  
+				
+			    $('#map').css('background-color', '#FFFFE5');
+                //$('.leaflet-tile').css('background', 'white');
+				
+
+
+				
+		function onLoad(){	
+        		//add these listeners
+        		Ti.App.addEventListener('initializemap',initializeMap );
+        		Ti.App.addEventListener('location.updated', onLocationFound);               
+                Ti.App.addEventListener('zoomfeature', zoomToFeature);	
+				Ti.App.addEventListener('filtermap', filterMap);
+				Ti.App.addEventListener('zoomdataextent', zoomDataExtent);
+				Ti.App.fireEvent("webmapready", {});
+				
+				//and remove them when the page is unloaded
+				$(window).unload(function() {
+					Ti.App.removeEventListener('initializemap',initializeMap );
+	  				Ti.App.removeEventListener('location.updated', onLocationFound);		            
+	                Ti.App.removeEventListener('zoomfeature', zoomToFeature);	      		
+					Ti.App.removeEventListener('filtermap', filterMap);
+					Ti.App.removeEventListener('zoomdataextent', zoomDataExtent);
+				});
+	}
+			
+			
+		function initializeMap(e) {
+			//alert(e.title);
+			var appFilePath = e.appFilePath;
+			Ti.API.info('initialized map');
+
+       		theSettings = e.mapSettings;
+       		baseMapAvailable = e.baseMapAvailable;
+
+			
+			
+			if(e.baseMapAvailable){
+				map.addLayer(metro);
+			}
+			else{
+				map.addLayer(metroTiles);
+			}
+			
+			
+			if (theSettings) {
+						
+				//$.getJSON(theSettings.dataURL, handleGeoJSONFirstTime);
+				//Ti.API.info(appFilePath);
+				//$.getJSON(appFilePath, handleGeoJSONTest);
+				var xmlHttp = null;
+
+   				 xmlHttp = new XMLHttpRequest();
+    			xmlHttp.open( "GET", appFilePath, false );
+    			xmlHttp.send( null );
+                //Ti.API.info(xmlHttp.responseText);
+				//Ti.API.info(JSON.parse(xmlHttp.responseText));
+				theJSON = JSON.parse(xmlHttp.responseText);
+				  
+				handleGeoJSONFirstTime(theJSON, showMap);
+				
+			}
+        }
+		
+       function showMap(){
+       				Ti.API.info("showing map now");
+       				Ti.App.fireEvent('hide_indicator');  
+				 	$('#map').fadeIn('slow');
+       	
+       }
+       
+		function handleGeoJSONFirstTime(data, callback) {
+   			
+   			
+   			geojsonLayer = new L.GeoJSON(data, {onEachFeature: onEachFeature});
+   				 _filterData = data;
+   			
+				map.addLayer(geojsonLayer);
+				
+			if (theSettings.startLocator) {
+				
+				$('.locatorButton').click();
+			}
+			
+			myLayerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);	
+			
+			//Ti.API.info("************************************************************************************************BaseMapAvailable:" + baseMapAvailable);
+			
+			
+			
+			
+			if (theSettings.mainLayer == 'trails' && baseMapAvailable){
+					//Ti.API.info("trails success");
+					//map.addLayer(metroParks);
+					map.addLayer(metroTrails);
+					myLayerControl.addOverlay(metroTrails, "Trails");					
+				}
+				else if (theSettings.mainLayer == 'sidewalksbikes'  && baseMapAvailable){
+					map.addLayer(metroBikesSidewalks);
+					//Ti.API.info("bikes success");
+					myLayerControl.addOverlay(metroBikesSidewalks, "Bikes and Sidewalks");	
+				}
+			
+			//myLayerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);	
+			//$('#map').fadeIn('slow');
+			
+								//updateGeoJSON();	
+		      callback();
+			
+			}	
+		   					
+		
+
+		
+		function handleGeoJSONFilter(data) {
+   			
+   			
+   			geojsonLayer = new L.GeoJSON(data, {onEachFeature: onEachFeature});
+   				 _filterData = data;
+   			
+				map.addLayer(geojsonLayer);
+				map.fitBounds(geojsonLayer.getBounds());
+				return true;			
+				//Ti.App.fireEvent('hide_indicator');
+				
+								
+			}
+		
+		
+
+		function filterMap(e){   
+			
+			if (locatorWatch){
+        		$('.locatorButton').click();
+        	}
+			
+			//Ti.API.info(e);
+			_distanceMiles = e.filterDistance;
+			_mylatlng = new L.LatLng(e.lat, e.lon);
+			var appFilePath = e.appFilePath;  
+			map.removeLayer(geojsonLayer);
+			
+			
+			//Ti.API.info(appFilePath);
+				//$.getJSON(appFilePath, handleGeoJSONTest);
+				var xmlHttp = null;
+
+   				 xmlHttp = new XMLHttpRequest();
+    			xmlHttp.open( "GET", appFilePath, false );
+    			xmlHttp.send( null );
+                //Ti.API.info(xmlHttp.responseText);
+				//Ti.API.info(JSON.parse(xmlHttp.responseText));
+				theJSON = JSON.parse(xmlHttp.responseText);
+				//Ti.API.info(theJSON);
+				if(handleGeoJSONFilter(theJSON)){
+				 	Ti.App.fireEvent('hide_indicator');  
+				}
+			
+			//geojsonLayer = new L.GeoJSON(_filterData, {onEachFeature: onEachFeature, filter: filterFeatures});
+			//map.addLayer(geojsonLayer);
+			//map.fitBounds(geojsonLayer.getBounds());
+			
+			
+		}
+				
+				
+	
+		function zoomDataExtent(){
+			//alert("got here!");
+			map.removeLayer(Locations);
+			map.fitBounds(geojsonLayer.getBounds());
+			
+		}
+				
+		
+
+
+		function onLocationFound(theGPSMessage) {
+			//if (initialBounds.contains(e.latlng)){
+				theCurrentLocation = theGPSMessage.coords;
+				//var radius = e.accuracy / 2 * 3.28084;
+				var radius = theGPSMessage.coords.accuracy;
+			
+			
+				var theLatLng = new L.LatLng(theCurrentLocation.latitude, theCurrentLocation.longitude);
+				
+				//alert(theLatLng);
+				if (marker!=null){
+					map.removeLayer(marker._leaflet_id);
+					
+		            map.removeLayer(circle);
+		            $('.locationCircle').remove();
+				}   
+				
+				//Ti.API.info("container point: " + map.latLngToContainerPoint(theLatLng).toString());
+				//Ti.API.info("layer point: " + map.latLngToLayerPoint(theLatLng).toString());
+				//Ti.API.info("project point: " + map.project(theLatLng).toString());
+				var myIcon = new L.divIcon({className: 'locationCircle', iconSize:[30,30]});
+				marker = new L.Marker(theLatLng, {icon: myIcon});
+				circle = new L.circle(theLatLng, radius);				
+                
+			    
+				
+				map.addLayer(marker);
+				
+		
+				map.addLayer(circle);
+				circle.setLatLng(theLatLng);
+				circle.setRadius(radius*2);
+				marker.bindPopup("You are within " + Math.round(radius) + " feet from this point.");
+				
+				if (theSettings.startLocator) {
+					//$('.locatorButton').click();
+					theSettings.startLocator = false;
+					map.setView(theLatLng, 13, {animate:true} ); 
+				}
+ 				
+ 				else if(!map.getBounds().contains(theLatLng)) {	
+ 	            	
+ 	           		map.setView(theLatLng, 13, {animate:true} ); 
+					
+ 	            }	
+ 	            
+ 	        	   
+ 					
+		}
+		
+
+	
+		
+	 function onEachFeature(feature, layer) {
+			// does this feature have a property named popupContent?
+			//alert("onEachFeature");
+			if (feature.properties) {
+				
+				//Ti.API.info(feature.properties);
+				//Ti.API.info(theSettings);
+				var theHTML = feature.properties[theSettings.mapTitleField];
+				//Ti.API.info(theHTML);
+				if(feature.properties[theSettings.tableIDField]) {
+					var theID = feature.properties[theSettings.tableIDField];
+					//Ti.API.info(theID);
+					//Active_//Ti.API.info(theID);
+					theHTML = '<a href="javascript:void(0)" onclick="onPopupClick(\'' + theID  + '\');">' + feature.properties[theSettings.mapTitleField] + '</a>';
+					if(feature.properties[theSettings.mapCategoryField]) {	
+						theHTML = theHTML + '<br>'+ feature.properties[theSettings.mapCategoryField];
+         			}	//Active_//Ti.API.info(theHTML);
+				}
+				
+				//var iconLocation = 'icons/mappins/' + feature.properties[theSettings.mapIconField];
+				
+				var iconLocation = theSettings.mapIconPath + feature.properties[theSettings.mapIconField];
+				
+				//Active_//Ti.API.info(iconLocation);
+				var myIcon = L.icon({
+				  iconUrl: iconLocation, 
+				  iconSize: [44,50], 
+				  //iconAnchor: [7,36]
+				  iconAnchor:[18,50]
+				//  className: 'markerZoom'+feature.properties.Zoom
+				});
+				layer.setIcon(myIcon);
+				layer.bindPopup(theHTML,{offset: new L.Point(2,-33), maxWidth: 150});
+			   }	
+		}
+   
+   
+   
+   		function onPopupClick(passedtableID) {
+   			//alert(tableID);
+   			Ti.App.fireEvent('identifyMapFeature', {tableID:passedtableID});
+   		}
+   
+   
+	
+
+		function zoomToFeature(e) {
+			
+			//Ti.API.info("got into the webview zoom function");
+			//oldInfo(aGeoJSON.type);
+			
+			//var aGeoJSON = eval('(' + e.theData + ')');
+			var aGeoJSON =  e.theData;
+			
+			//oldInfo(aGeoJSON.geometry);
+			//oldInfo(aGeoJSON.geometry);
+			var theLatLng;
+			var thePopupLatLng = new L.LatLng(e.lat,e.lon); 
+			var featureType;
+			if (aGeoJSON.geometry && aGeoJSON.geometry.type) {
+				featureType = aGeoJSON.geometry.type;
+				Ti.API.info("GeoJSON Geometry Type: " + featureType);
+				if (featureType == "Point"){
+					theLatLng = new L.LatLng(aGeoJSON.geometry.coordinates[1],aGeoJSON.geometry.coordinates[0]);
+				}
+			}
+			else if(aGeoJSON.type) {
+				featureType = aGeoJSON.type;
+				Ti.API.info("GeoJSON Type Only: " + featureType);
+					if (featureType == "Point"){
+						theLatLng = new L.LatLng(aGeoJSON.coordinates[1],aGeoJSON.coordinates[0]);
+					}
+			}
+				//var theTitle = theGeo.theJSON[0].title;
+			if (locatorWatch){
+                		$('.locatorButton').click();
+                	}	
+			
+				var geojsonMarkerOptions = {
+				    radius: 16,
+				    fillColor: theSettings.pointColor,
+				    color: "#000",
+				    weight: 1,
+				    opacity: 0.8,
+				    fillOpacity: 0.3
+				};
+
+
+		var myStyle = {
+		    "color": theSettings.polyLineColor,
+		    "weight": 6,
+		    "opacity": 0.6
+		};
+
+		//oldInfo(JSON.parse("'" +aGeoJSON.geometry+ "'"));
+		//Ti.API.info(featureType);
+		
+
+
+		if (Locations != null) {
+        		if(map.hasLayer(Locations)) {
+        			map.removeLayer(Locations);
+        			Locations = null;
+        		}
+           	}	
+
+
+		//create a popup
+		var theID = e.tableID;
+
+		theHTML = '<a href="javascript:void(0)" onclick="onPopupClick(\'' + theID  + '\');">' + e.mapTitle + '</a>';
+		theHTML = theHTML + '<br>'+ e.category;
+ 			
+		//Locations.bindPopup(theHTML).openPopup();
+		
+
+
+		//oldInfo(JSON.stringify(aGeoJSON.geometry));	
+		//Ti.API.info(aGeoJSON);
+		Ti.API.info(featureType);
+		Ti.API.info(theLatLng);
+		if (featureType == "Point"){
+			Ti.API.info("Creating a Point Layer");
+			Locations = L.geoJson(aGeoJSON, {pointToLayer: function (feature, latlng) {
+	        	return L.circleMarker(latlng, geojsonMarkerOptions);
+	        }
+	    	});
+	    	map.addLayer(Locations);
+	    	//map.fitBounds(Locations.getBounds());
+	    	//theLatLng = new L.LatLng(aGeoJSON.geometry.coordinates[1],aGeoJSON.geometry.coordinates[0]);
+	    	
+	    	map.setView(theLatLng, 16, {animate:true} );
+	    	
+	    	Ti.API.info("Point Layer Creation Completed");
+	    	
+	    	//Ti.API.info(JSON.stringify(e));
+	    	
+	    	
+	    	
+	    	
+		}
+		else {
+					
+				Locations = new L.geoJson(aGeoJSON, {style:myStyle});
+				Ti.API.info("Locations Built for Other Features");
+				
+				map.addLayer(Locations);
+	        	
+	        	map.fitBounds(Locations.getBounds());
+				Locations.bindPopup(theHTML);
+		}
+		var popup = L.popup({offset: new L.Point(2,-33), maxWidth: 150})
+			.setLatLng(thePopupLatLng)
+			.setContent(theHTML)
+			.openOn(map);
+	}
+
+	    
+	
+	</script>
+	
+</body>
+</html>
