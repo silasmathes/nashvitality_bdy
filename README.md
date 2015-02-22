@@ -1,4 +1,4 @@
-#**NashVitality iOS Github README File** 
+#**NashVitality iOS Github README File**
 #####**February 18, 2015**
 
 ###**Getting Started**
@@ -7,15 +7,14 @@ Sign up for an account with Appcelerator.  Confirm your account (via
 email) and download Titanium Studio for your app.
 
 Install Titanium Studio from Appcelerator using the instructions here:
-http://docs.appcelerator.com/titanium/3.0/#!/guide/Quick_Start 
+http://docs.appcelerator.com/titanium/3.0/#!/guide/Quick_Start
 
-1.  It may be necessary to download the Java SE 6 Runtime. http://support.apple.com/kb/DL1572?viewlocale=en_US&locale=en_US
+It may be necessary to download the Java SE 6 Runtime. http://support.apple.com/kb/DL1572?viewlocale=en_US&locale=en_US
 
 Install the NashVitality ios Github repository into Titanium Studio by
 copying the project url from github:  https://github.com/code-for-nashville/nashvitality_ios
 
-In Titanium Studio, choose File-->Import-->Git-->Git Repository As New Project.  Login with your github credentials 
-and then paste the url into the URI field. 
+In Titanium Studio, choose File-->Import-->Git-->Git Repository As New Project.  Login with your github credentials and then paste the url into the URI field.
 
 Install the following modules using the directions from Appcelerator here:
 http://docs.appcelerator.com/titanium/3.0/#!/guide/Using_a_Module
@@ -35,9 +34,7 @@ As of February 2015, Version 1.5 of the NashVitality App is compatible with iPho
 
 In Titanium, make sure that the installed Titanium SDK matches the Titanium SDK listed in the tiapp.xml file in the NashVitality iOS project.
 
-To check the project installation, choose the green run icon and choose a target device (e.g., iPhone 5s).  Titanium should eventually
-open the iOS simulator.  For the first run of the App you may need to set a custom latitude and longitude corresponding to Nashvlle.  Enter 
-`36.164472`, `-86.775639` in the Debug-->Location-->Custom Location menu.
+To check the project installation, choose the green run icon and choose a target device (e.g., iPhone 5s). Titanium should eventually open the iOS simulator. For the first run of the App you may need to set a custom latitude and longitude corresponding to Nashville.To do so, go to the Debug-->Location-->Custom Location menu and enter `36.164472`, `-86.775639`
 
 ###**Introduction**
 
@@ -76,7 +73,7 @@ http://www.nashville.gov/Feeds/NewsEventFeed.aspx?type=EVENTS&catid=516
 
 `App.js` checks for old versions of the installed app sqlite database (e.g., `nashville1.x`) and deletes each previous database if installed.  `App.js` installs version 1.5 of the app database from the Resources folder into the application folder on the mobile device.   `App.js` then creates the Master Window for the app.
 
-`/ui/MasterWindow.js` checks for internet connectivity and basemap availability, and then creates an ios Navigation Window, or navGroup, to keep track of all subsequent windows.  The MasterWindow displays icons for all of the main functionality of the app.  The icons have click events that generate or open each corresponding window.  For subsequent windows that contain maps, the click events first poll the device’s GPS (`/windows/geolocate.js`) to get a location on which to center the map and calculate distances.  The navGroup object is passed to each subsequent window opened. 
+`/ui/MasterWindow.js` checks for internet connectivity and basemap availability, and then creates an ios Navigation Window, or navGroup, to keep track of all subsequent windows.  The MasterWindow displays icons for all of the main functionality of the app.  The icons have click events that generate or open each corresponding window.  For subsequent windows that contain maps, the click events first poll the device’s GPS (`/windows/geolocate.js`) to get a location on which to center the map and calculate distances.  The navGroup object is passed to each subsequent window opened.
 
 #####Project Folder Descriptions
 
@@ -119,12 +116,12 @@ Storage location for most windows and tools in the app.
 
 From the initial Master Window, additional Windows (other than simple information screens with webviews) are opened with the   following pattern:
 
->`byFoot.js`  --provides a list of maps/activities by foot via a configuration object with image locations, fonts, sql for queries, and map options.  Calls `Generic_Child.js` or a separate window for information display. 
+>`byFoot.js`  --provides a list of maps/activities by foot via a configuration object with image locations, fonts, sql for queries, and map options.  Calls `Generic_Child.js` or a separate window for information display.
 
 >>`Generic_Child.js` --parses the selected activity and generates a tableview and map/webview for all locations/trails.  Calls the map webview code found in `/Resources/mapping/map.html`. Also uses `/Resources/windows/gc_address_view.js`, `gc_information_view.js`, and `gc_share_view.js` to display additional information about a trail or location.
 
 >OR
-  
+
 >>`byFoot_child_....js`--creates a webview or other informational screen.
 
 
