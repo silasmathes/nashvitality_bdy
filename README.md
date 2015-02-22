@@ -1,10 +1,20 @@
-#**NashVitality iOS Github README File** 
+#**NashVitality iOS Github README File**
 #####**February 18, 2015**
 
 ###**Getting Started**
 
+Sign up for an account with Appcelerator.  Confirm your account (via
+email) and download Titanium Studio for your app.
+
 Install Titanium Studio from Appcelerator using the instructions here:
-http://docs.appcelerator.com/titanium/3.0/#!/guide/Quick_Start 
+http://docs.appcelerator.com/titanium/3.0/#!/guide/Quick_Start
+
+It may be necessary to download the Java SE 6 Runtime. http://support.apple.com/kb/DL1572?viewlocale=en_US&locale=en_US
+
+Install the NashVitality ios Github repository into Titanium Studio by
+copying the project url from github:  https://github.com/code-for-nashville/nashvitality_ios
+
+In Titanium Studio, choose File-->Import-->Git-->Git Repository As New Project.  Login with your github credentials and then paste the url into the URI field.
 
 Install the following modules using the directions from Appcelerator here:
 http://docs.appcelerator.com/titanium/3.0/#!/guide/Using_a_Module
@@ -22,17 +32,20 @@ Documentation: http://docs.appcelerator.com/titanium/3.0/#!/api/Modules.Facebook
 
 As of February 2015, Version 1.5 of the NashVitality App is compatible with iPhones running IOS 7 and 8, and is built using the Titanium 3.4.0.GA SDK and Apple’s XCode 6.
 
+In Titanium, make sure that the installed Titanium SDK matches the Titanium SDK listed in the tiapp.xml file in the NashVitality iOS project.
+
+To check the project installation, choose the green run icon and choose a target device (e.g., iPhone 5s). Titanium should eventually open the iOS simulator. For the first run of the App you may need to set a custom latitude and longitude corresponding to Nashville.To do so, go to the Debug-->Location-->Custom Location menu and enter `36.164472`, `-86.775639`
+
 ###**Introduction**
 
-The NashVitality Mobile App was initially commissioned by the Nashville/Davidson County Office of the Mayor to provide users with a comprehensive list of outdoor activities and green amenities within Davidson County (http://www.nashville.gov/nashvitality and http://www.nashville.gov/Mayors-Office/Priorities/Health/NashVitality.aspx ).  
+The NashVitality Mobile App was initially commissioned by the Nashville/Davidson County Office of the Mayor to provide users with a comprehensive list of outdoor activities and green amenities within Davidson County (http://www.nashville.gov/nashvitality and http://www.nashville.gov/Mayors-Office/Priorities/Health/NashVitality.aspx ).
 
-The free app’s primary focus is on parks and hiking/biking trails and also includes opportunities for water recreation as well as locations of recycling centers, public art, B-Cycle locations, and information on selected outdoor-related health initiatives, such as the 2014 Walk 100 Miles campaign.  BDY Environmental (http://bdy-inc.com/ ) originally wrote the source code and published the app for iOS and Android using Appcelerator’s Titanium (http://www.appcelerator.com/developers/). 
-
+The free app’s primary focus is on parks and hiking/biking trails and also includes opportunities for water recreation as well as locations of recycling centers, public art, B-Cycle locations, and information on selected outdoor-related health initiatives, such as the 2014 Walk 100 Miles campaign.  BDY Environmental (http://bdy-inc.com/ ) originally wrote the source code and published the app for iOS and Android using Appcelerator’s Titanium (http://www.appcelerator.com/developers/).
 
 The app’s name and some graphic elements arose from an earlier NashVitality initiative sponsored by the Metro Nashville Health Department.  Rob Williams Design created icons, most screen layouts, and marketing materials for the app (http://robwilliamsdesign.com/#/nashvitality-app/).
 
 
-Data sources include hiking trails and park images from Metro Nashville Parks (http://www.nashville.gov/Parks-and-Recreation.aspx), boundaries and basemaps (http://www.nashville.gov/Planning-Department/Mapping-and-GIS.aspx ) from the Metro Nashville Planning Department, Walk Bike Nashville, and field data collected by BDY Environmental.   
+Data sources include hiking trails and park images from Metro Nashville Parks (http://www.nashville.gov/Parks-and-Recreation.aspx), boundaries and basemaps (http://www.nashville.gov/Planning-Department/Mapping-and-GIS.aspx ) from the Metro Nashville Planning Department, Walk Bike Nashville, and field data collected by BDY Environmental.
 
 The app was released as an open-source project in January 2015.
 
@@ -60,7 +73,7 @@ http://www.nashville.gov/Feeds/NewsEventFeed.aspx?type=EVENTS&catid=516
 
 `App.js` checks for old versions of the installed app sqlite database (e.g., `nashville1.x`) and deletes each previous database if installed.  `App.js` installs version 1.5 of the app database from the Resources folder into the application folder on the mobile device.   `App.js` then creates the Master Window for the app.
 
-`/ui/MasterWindow.js` checks for internet connectivity and basemap availability, and then creates an ios Navigation Window, or navGroup, to keep track of all subsequent windows.  The MasterWindow displays icons for all of the main functionality of the app.  The icons have click events that generate or open each corresponding window.  For subsequent windows that contain maps, the click events first poll the device’s GPS (`/windows/geolocate.js`) to get a location on which to center the map and calculate distances.  The navGroup object is passed to each subsequent window opened. 
+`/ui/MasterWindow.js` checks for internet connectivity and basemap availability, and then creates an ios Navigation Window, or navGroup, to keep track of all subsequent windows.  The MasterWindow displays icons for all of the main functionality of the app.  The icons have click events that generate or open each corresponding window.  For subsequent windows that contain maps, the click events first poll the device’s GPS (`/windows/geolocate.js`) to get a location on which to center the map and calculate distances.  The navGroup object is passed to each subsequent window opened.
 
 #####Project Folder Descriptions
 
@@ -103,12 +116,12 @@ Storage location for most windows and tools in the app.
 
 From the initial Master Window, additional Windows (other than simple information screens with webviews) are opened with the   following pattern:
 
->`byFoot.js`  --provides a list of maps/activities by foot via a configuration object with image locations, fonts, sql for queries, and map options.  Calls `Generic_Child.js` or a separate window for information display. 
+>`byFoot.js`  --provides a list of maps/activities by foot via a configuration object with image locations, fonts, sql for queries, and map options.  Calls `Generic_Child.js` or a separate window for information display.
 
 >>`Generic_Child.js` --parses the selected activity and generates a tableview and map/webview for all locations/trails.  Calls the map webview code found in `/Resources/mapping/map.html`. Also uses `/Resources/windows/gc_address_view.js`, `gc_information_view.js`, and `gc_share_view.js` to display additional information about a trail or location.
 
 >OR
-  
+
 >>`byFoot_child_....js`--creates a webview or other informational screen.
 
 
