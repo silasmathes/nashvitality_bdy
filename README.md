@@ -28,7 +28,7 @@ The NashVitality Mobile App was initially commissioned by the Nashville/Davidson
 
 The free app’s primary focus is on parks and hiking/biking trails and also includes opportunities for water recreation as well as locations of recycling centers, public art, B-Cycle locations, and information on selected outdoor-related health initiatives, such as the 2014 Walk 100 Miles campaign.  BDY Environmental (http://bdy-inc.com/ ) originally wrote the source code and published the app for iOS and Android using Appcelerator’s Titanium (http://www.appcelerator.com/developers/). 
 
-
+Testing Write privileges.
 The app’s name and some graphic elements arose from an earlier NashVitality initiative sponsored by the Metro Nashville Health Department.  Rob Williams Design created icons, most screen layouts, and marketing materials for the app (http://robwilliamsdesign.com/#/nashvitality-app/).
 
 
